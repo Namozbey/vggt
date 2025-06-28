@@ -58,6 +58,8 @@ def run_and_save(target_dir, output_subdir="output"):
     for i, pts in enumerate(predictions['world_points_from_depth']):
         np.save(os.path.join(output_dir, f'pointcloud_{i:03d}.npy'), pts)
         # Save as PLY
+        print(f"Pointcloud {i}: pts.shape = {pts.shape}, min = {pts.min() if pts.size else 'EMPTY'}, max = {pts.max() if pts.size else 'EMPTY'}")
+        
         pc = o3d.geometry.PointCloud()
         pc.points = o3d.utility.Vector3dVector(pts)
         ply_name = f'pointcloud_{i:03d}.ply'
