@@ -5,6 +5,7 @@ from vggt.models.vggt import VGGT
 from vggt.utils.load_fn import load_and_preprocess_images
 from vggt.utils.pose_enc import pose_encoding_to_extri_intri
 from vggt.utils.geometry import unproject_depth_map_to_point_map
+import open3d as o3d
 
 def run_and_save(target_dir, output_subdir="output"):
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -56,6 +57,12 @@ def run_and_save(target_dir, output_subdir="output"):
     # Point clouds
     for i, pts in enumerate(predictions['world_points_from_depth']):
         np.save(os.path.join(output_dir, f'pointcloud_{i:03d}.npy'), pts)
+        # Save as PLY
+        pc = o3d.geometry.PointCloud()
+        pc.points = o3d.utility.Vector3dVector(pts)
+        ply_name = f'pointcloud_{i:03d}.ply'
+        ply_path = os.path.join(output_dir, ply_name)
+        o3d.io.write_point_cloud(ply_path, pc)
 
     print(f"All outputs saved to {output_dir}")
 
