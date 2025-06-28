@@ -62,8 +62,7 @@ def run_and_save(target_dir, output_subdir="output"):
         rgb_img = np.array(Image.open(image_names[i])).astype(np.float32) / 255.0  # (H_img, W_img, 3)
         # Resize if necessary
         if rgb_img.shape[:2] != pts.shape[:2]:
-            from PIL import Image as PILImage
-            rgb_img = np.array(PILImage.fromarray((rgb_img * 255).astype(np.uint8)).resize((pts.shape[1], pts.shape[0]), resample=PILImage.BILINEAR)).astype(np.float32) / 255.0
+            rgb_img = np.array(Image.fromarray((rgb_img * 255).astype(np.uint8)).resize((pts.shape[1], pts.shape[0]), resample=Image.BILINEAR)).astype(np.float32) / 255.0
 
         valid_depth = np.isfinite(pts).all(axis=2)  # (H, W)
         pts_flat = pts[valid_depth]      # (N, 3)
