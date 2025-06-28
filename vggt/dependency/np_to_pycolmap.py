@@ -92,19 +92,19 @@ def batch_np_matrix_to_pycolmap(
             pycolmap_intri = _build_pycolmap_intri(fidx, intrinsics, camera_type, extra_params)
 
             camera = pycolmap.Camera(
-                model=camera_type, width=image_size[0], height=image_size[1], params=pycolmap_intri, camera_id=fidx + 1
+                model=camera_type, width=image_size[0], height=image_size[1], params=pycolmap_intri, id=fidx + 1
             )
 
             # add camera
             reconstruction.add_camera(camera)
 
         # set image
-        cam_from_world = pycolmap.Rigid3d(
+        cam_from_world = pycolmap.Rigid3(
             pycolmap.Rotation3d(extrinsics[fidx][:3, :3]), extrinsics[fidx][:3, 3]
         )  # Rot and Trans
 
         image = pycolmap.Image(
-            id=fidx + 1, name=f"image_{fidx + 1}", camera_id=camera.camera_id, cam_from_world=cam_from_world
+            id=fidx + 1, name=f"image_{fidx + 1}", camera_id=camera.id, cam_from_world=cam_from_world
         )
 
         points2D_list = []
@@ -132,10 +132,10 @@ def batch_np_matrix_to_pycolmap(
 
         try:
             image.points2D = pycolmap.ListPoint2D(points2D_list)
-            image.registered = True
+            # image.registered = True
         except:
             print(f"frame {fidx + 1} is out of BA")
-            image.registered = False
+            # image.registered = False
 
         # add image
         reconstruction.add_image(image)
@@ -247,7 +247,7 @@ def batch_np_matrix_to_pycolmap_wo_track(
             reconstruction.add_camera(camera)
 
         # set image
-        cam_from_world = pycolmap.Rigid3d(
+        cam_from_world = pycolmap.Rigid3(
             pycolmap.Rotation3d(extrinsics[fidx][:3, :3]), extrinsics[fidx][:3, 3]
         )  # Rot and Trans
 
