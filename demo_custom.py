@@ -59,18 +59,12 @@ def run_and_save(target_dir, output_subdir="output"):
     # Point clouds
     for i, pts in enumerate(predictions['world_points_from_depth']):
         np.save(os.path.join(output_dir, f'pointcloud_{i:03d}.npy'), pts)
-        # Load corresponding RGB image
-        rgb_img = np.array(Image.open(image_names[i])).astype(np.float32) / 255.0  # shape (H, W, 3)
-        pts_flat = pts.reshape(-1, 3)
-        colors_flat = rgb_img.reshape(-1, 3)
+        rgb_img = np.array(Image.open(image_names[i])).astype(np.float32) / 255.0  # (H, W, 3)
+        valid_depth = np.isfinite(pts).all(axis=2)  # (H, W)
+        pts_flat = pts[valid_depth]      # (N, 3)
+        colors_flat = rgb_img[valid_depth]  # (N, 3)
 
-        # Only keep points with valid (finite) coordinates (optional, for better display)
-        valid_mask = np.isfinite(pts_flat).all(axis=1)
-        # Debug shape check
-        print(f"pts_flat: {pts_flat.shape}, colors_flat: {colors_flat.shape}, valid_mask: {valid_mask.shape}")
-
-        pts_flat = pts_flat[valid_mask]
-        colors_flat = colors_flat[valid_mask]
+        print(f"pts_flat: {pts_flat.shape}, colors_flat: {colors_flat.shape}")
 
         if pts_flat.size == 0 or pts_flat.shape[1] != 3:
             print(f"Skipping empty or invalid pointcloud for frame {i}: shape {pts.shape}")
