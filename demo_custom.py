@@ -66,6 +66,9 @@ def run_and_save(target_dir, output_subdir="output"):
 
         # Only keep points with valid (finite) coordinates (optional, for better display)
         valid_mask = np.isfinite(pts_flat).all(axis=1)
+        # Debug shape check
+        print(f"pts_flat: {pts_flat.shape}, colors_flat: {colors_flat.shape}, valid_mask: {valid_mask.shape}")
+
         pts_flat = pts_flat[valid_mask]
         colors_flat = colors_flat[valid_mask]
 
