@@ -6,6 +6,8 @@ from vggt.utils.load_fn import load_and_preprocess_images
 from vggt.utils.pose_enc import pose_encoding_to_extri_intri
 from vggt.utils.geometry import unproject_depth_map_to_point_map
 import open3d as o3d
+from PIL import Image
+
 
 def run_and_save(target_dir, output_subdir="output"):
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -57,13 +59,22 @@ def run_and_save(target_dir, output_subdir="output"):
     # Point clouds
     for i, pts in enumerate(predictions['world_points_from_depth']):
         np.save(os.path.join(output_dir, f'pointcloud_{i:03d}.npy'), pts)
-        # Save as PLY if valid
+        # Load corresponding RGB image
+        rgb_img = np.array(Image.open(image_names[i])).astype(np.float32) / 255.0  # shape (H, W, 3)
         pts_flat = pts.reshape(-1, 3)
+        colors_flat = rgb_img.reshape(-1, 3)
+
+        # Only keep points with valid (finite) coordinates (optional, for better display)
+        valid_mask = np.isfinite(pts_flat).all(axis=1)
+        pts_flat = pts_flat[valid_mask]
+        colors_flat = colors_flat[valid_mask]
+
         if pts_flat.size == 0 or pts_flat.shape[1] != 3:
             print(f"Skipping empty or invalid pointcloud for frame {i}: shape {pts.shape}")
             continue
         pc = o3d.geometry.PointCloud()
         pc.points = o3d.utility.Vector3dVector(pts_flat)
+        pc.colors = o3d.utility.Vector3dVector(colors_flat)
         ply_name = f'pointcloud_{i:03d}.ply'
         ply_path = os.path.join(output_dir, ply_name)
         o3d.io.write_point_cloud(ply_path, pc)
