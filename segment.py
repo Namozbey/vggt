@@ -7,7 +7,7 @@ import requests
 
 def get_grounded_sam_mask(image_path, target_text, api_token):
     # You need to use HuggingFace Inference API for Grounded-SAM
-    api_url = "https://api-inference.huggingface.co/models/IDEA-Research/grounded-sam"
+    api_url = "https://huggingface.co/spaces/mawady-uni/Grounded-SAM"
     headers = {"Authorization": f"Bearer {api_token}"}
     with open(image_path, "rb") as img_file:
         payload = {
@@ -25,6 +25,8 @@ def main(example_path, target_text):
     if api_token is None:
         print("Please set your HuggingFace API token in the HF_TOKEN environment variable.")
         sys.exit(1)
+    
+    print(f"hf token {api_token[:5]}")
 
     output_path = os.path.join(example_path, "output")
     images = sorted([f for f in os.listdir(os.path.join(example_path, "images")) if f.endswith(('.png', '.jpg', '.jpeg'))])
