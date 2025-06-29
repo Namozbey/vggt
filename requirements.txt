@@ -8,3 +8,4 @@ safetensors
 open3d
 requests
 pillow
+gradio_client

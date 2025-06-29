@@ -4,20 +4,26 @@ import numpy as np
 from PIL import Image
 import open3d as o3d
 import requests
+from gradio_client import Client, handle_file
 
-def get_grounded_sam_mask(image_path, target_text, api_token):
-    # You need to use HuggingFace Inference API for Grounded-SAM
-    api_url = "https://huggingface.co/spaces/mawady-uni/Grounded-SAM"
-    headers = {"Authorization": f"Bearer {api_token}"}
-    with open(image_path, "rb") as img_file:
-        payload = {
-            "inputs": {"image": img_file, "text": target_text}
-        }
-        response = requests.post(api_url, headers=headers, files={"image": img_file}, data={"text": target_text})
-    response.raise_for_status()
-    result = response.json()
-    # This part may need to be adapted depending on output format from API
-    mask = np.array(result["mask"], dtype=bool)
+def get_grounded_sam_mask(image_path, target_text):
+    client = Client("mawady-uni/Grounded-SAM")
+    result = client.predict(
+        input_image=handle_file(image_path),
+        text_prompt=target_text,
+        task_type="seg",  # or "automatic" for auto-seg, "det" for detection
+        inpaint_prompt=target_text,
+        box_threshold=0.3,
+        text_threshold=0.25,
+        iou_threshold=0.8,
+        inpaint_mode="merge",
+        api_name="/run_grounded_sam"
+    )
+    # Result is a list of dicts. Each dict contains 'image' key with 'path'
+    mask_image_path = result[0]["image"]["path"]
+    # Load mask as binary numpy array (assumes mask is white on black)
+    mask_img = Image.open(mask_image_path).convert("L")
+    mask = np.array(mask_img) > 127  # Threshold to make boolean mask
     return mask
 
 def main(example_path, target_text):
