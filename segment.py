@@ -44,7 +44,7 @@ def main(example_path, target_text):
             continue
 
         # 1. Get mask from Grounded-SAM
-        mask = get_grounded_sam_mask(image_path, target_text, api_token)  # mask shape (H, W)
+        mask = get_grounded_sam_mask(image_path, target_text)  # mask shape (H, W)
 
         # 2. Load depth and point cloud
         depth = np.load(depth_path)  # shape (H, W)
