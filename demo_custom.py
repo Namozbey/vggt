@@ -82,9 +82,24 @@ def run_and_save(target_dir, output_subdir="output"):
 
     print(f"All outputs saved to {output_dir}")
 
+# if __name__ == "__main__":
+#     import sys
+#     if len(sys.argv) < 2:
+#         print("Usage: python demo_extract.py <target_dir>")
+#         exit(1)
+#     run_and_save(sys.argv[1])
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 2:
-        print("Usage: python demo_extract.py <target_dir>")
+        print("Usage: python demo_custom.py <parent_dir>")
         exit(1)
-    run_and_save(sys.argv[1])
+    parent_dir = sys.argv[1]
+    for folder in sorted(os.listdir(parent_dir)):
+        full_path = os.path.join(parent_dir, folder)
+        if os.path.isdir(full_path):
+            print(f"\nProcessing {full_path}")
+            try:
+                run_and_save(full_path)
+            except Exception as e:
+                print(f"Failed to process {full_path}: {e}")
