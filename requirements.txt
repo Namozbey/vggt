@@ -6,4 +6,5 @@ huggingface_hub
 einops
 safetensors
 open3d
-PIL
+requests
+pillow
