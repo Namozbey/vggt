@@ -7,7 +7,13 @@ from vggt.utils.pose_enc import pose_encoding_to_extri_intri
 from vggt.utils.geometry import unproject_depth_map_to_point_map
 import open3d as o3d
 from PIL import Image
+import matplotlib.pyplot as plt
 
+def save_depth_vis(depth, out_path):
+    vmin = np.nanmin(depth)
+    vmax = np.nanmax(depth)
+    depth_vis = (depth - vmin) / (vmax - vmin + 1e-8)
+    plt.imsave(out_path, depth_vis, cmap='turbo')
 
 def run_and_save(target_dir, output_subdir="output"):
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -56,6 +62,9 @@ def run_and_save(target_dir, output_subdir="output"):
     # Depth maps
     for i, depth in enumerate(predictions['depth']):
         np.save(os.path.join(output_dir, f'depth_map_{i:03d}.npy'), depth[..., 0])
+        # Save colorized depth image
+        depth_img_path = os.path.join(output_dir, f"depth_map_{i:03d}.png")
+        save_depth_vis(depth, depth_img_path)
     # Point clouds
     for i, pts in enumerate(predictions['world_points_from_depth']):
         np.save(os.path.join(output_dir, f'pointcloud_{i:03d}.npy'), pts)
