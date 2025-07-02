@@ -64,7 +64,7 @@ def run_and_save(target_dir, output_subdir="output"):
         np.save(os.path.join(output_dir, f'depth_map_{i:03d}.npy'), depth[..., 0])
         # Save colorized depth image
         depth_img_path = os.path.join(output_dir, f"depth_map_{i:03d}.png")
-        save_depth_vis(depth, depth_img_path)
+        save_depth_vis(depth[..., 0], depth_img_path)
     # Point clouds
     for i, pts in enumerate(predictions['world_points_from_depth']):
         np.save(os.path.join(output_dir, f'pointcloud_{i:03d}.npy'), pts)
